@@ -19,3 +19,7 @@ Projekt využívá tyto hlavní komponenty: pětici debounce modulů pro stabili
 [CLK_EN Simulation](clk_en_simulation.png)
 [COMP Simulation](comp_simulation.png)
 
+## VHDL Code Files
+[CLK_EN VHDL file](clk_en.vhd)
+[COMP VHDL file](comp.vhd)
+
