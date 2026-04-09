@@ -14,3 +14,6 @@ Projekt využívá tyto hlavní komponenty: pětici debounce modulů pro stabili
 ## Nexys A7 50T constraints file
 
 [Open Constraints](alarm_clock_top.xdc)
+
+## Simulation pics
+[CLK_EN Simulation](clk_en_simulation.png)
