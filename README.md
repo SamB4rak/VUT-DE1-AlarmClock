@@ -9,4 +9,4 @@ Při shodě aktuálního času s nastaveným časem budíku (match) a aktivním 
 Projekt využívá tyto hlavní komponenty: pětici debounce modulů pro stabilizaci tlačítek, dva generátory hodinového signálu (clk_en) pro 1Hz a 2Hz pulzy, FSM řadič se čtyřmi stavy (RUN, SET_TIME, SET_ALARM, ALARM_RING), BCD čítač času, registr budíku, komparátor, multiplexovaný ovladač 8místného 7segmentového displeje a generátor tónu pro piezo.
 ## Alarm Clock Schematic
 
-📄 [Open Schematic](alarm_clock_schematic.pdf)
+[![Schematic Preview](alarm_clock_schematic.png)](alarm_clock_schematic.pdf)
