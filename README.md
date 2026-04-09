@@ -17,3 +17,5 @@ Projekt využívá tyto hlavní komponenty: pětici debounce modulů pro stabili
 
 ## Simulation pics
 [CLK_EN Simulation](clk_en_simulation.png)
+[COMP Simulation](comp_simulation.png)
+
