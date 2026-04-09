@@ -10,3 +10,7 @@ Projekt využívá tyto hlavní komponenty: pětici debounce modulů pro stabili
 ## Alarm Clock Schematic
 
 [![Schematic Preview](alarm_clock_schematic.png)](alarm_clock_schematic.pdf)
+
+## Nexys A7 50T constraints file
+
+[Open Constraints](alarm_clock_top.xdc)
