@@ -16,10 +16,10 @@ Projekt využívá tyto hlavní komponenty: pětici debounce modulů pro stabili
 [Open Constraints](alarm_clock_top.xdc)
 
 ## Simulation pics
-[CLK_EN Simulation](clk_en_simulation.png)
+[CLK_EN Simulation](clk_en_simulation.png)<br>
 [COMP Simulation](comp_simulation.png)
 
 ## VHDL Code Files
-[CLK_EN VHDL file](clk_en.vhd)
+[CLK_EN VHDL file](clk_en.vhd)<br>-
 [COMP VHDL file](comp.vhd)
 
