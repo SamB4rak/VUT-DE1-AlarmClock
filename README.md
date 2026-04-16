@@ -1,12 +1,60 @@
-# VUT-DE1-AlarmClock
-Barák, Glaser, Kapaňa Alarm clock VHDL project
+# Alarm Clock (VHDL Project)
 
-Alarm Clock — popis projektu
+Tento projekt implementuje digitální 24hodinový budík v jazyce **VHDL** pro vývojovou desku **Nexys A7-50T**. Systém umožňuje nastavení aktuálního času, konfiguraci budíku a zvukovou i vizuální signalizaci buzení.
 
-Cílem projektu je návrh a implementace 24hodinového budíku na vývojové desce Nexys A7-50T v jazyce VHDL. Hodiny zobrazují aktuální čas na levých čtyřech segmentech 7segmentového displeje (formát HH:MM) a čas budíku na pravých čtyřech segmentech. Dvojtečka mezi hodinami a minutami na straně času bliká s frekvencí 1 Hz, zatímco na straně budíku svítí trvale.  
-Nastavení času se aktivuje přepínačem SW(0) — po přepnutí do režimu SET_TIME uživatel pomocí tlačítek UP/DOWN mění hodnotu vybrané cifry a tlačítky LEFT/RIGHT přepíná mezi ciframi. Aktivně nastavovaná cifra bliká frekvencí přibližně 2 Hz. Přepnutím SW(0) zpět se hodiny vrátí do režimu RUN a čas běží. Nastavení budíku se aktivuje stiskem středového tlačítka (BTNC) z režimu RUN — ovládání je totožné s nastavením času. Potvrzením středovým tlačítkem se budík uloží a označí jako aktivní (armed).  
-Při shodě aktuálního času s nastaveným časem budíku (match) a aktivním budíku se systém přepne do stavu ALARM_RING — piezo bzučák generuje tón a pravé čtyři segmenty včetně dvojtečky blikají. Budík se vypne stiskem středového tlačítka, pravá strana displeje zhasne a čeká na nové nastavení budíku.  
-Projekt využívá tyto hlavní komponenty: pětici debounce modulů pro stabilizaci tlačítek, dva generátory hodinového signálu (clk_en) pro 1Hz a 2Hz pulzy, FSM řadič se čtyřmi stavy (RUN, SET_TIME, SET_ALARM, ALARM_RING), BCD čítač času, registr budíku, komparátor, multiplexovaný ovladač 8místného 7segmentového displeje a generátor tónu pro piezo.
+**Autoři:** Barák, Glaser, Kapaňa
+
+---
+
+## Popis projektu
+Cílem projektu je vytvořit plně funkční digitální hodiny s budíkem. 
+
+### Zobrazení na displeji:
+* **Levé 4 segmenty (HH:MM):** Aktuální běžící čas. Dvojtečka bliká s frekvencí **1 Hz** (1 Hz je 1 sec).
+* **Pravé 4 segmenty (HH:MM):** Nastavený čas budíku. Dvojtečka svítí trvale (v režimu aktivního budíku).
+
+---
+
+## Ovládání a režimy
+
+Projekt využívá přepínače a tlačítka na desce Nexys A7 k přepínání mezi různými stavy systému.
+
+### 1. Nastavení času (SET_TIME)
+* **Aktivace:** Přepnutím přepínače SW(0).
+* **Ovládání:** * LEFT / RIGHT: Přepínání mezi jednotlivými ciframi (aktivní cifra bliká **2 Hz**).
+    * UP / DOWN: Změna hodnoty vybrané cifry.
+* **Uložení:** Vrácením SW(0) do výchozí polohy se čas spustí.
+
+### 2. Nastavení budíku (SET_ALARM)
+* **Aktivace:** Stiskem středového tlačítka BTNC v režimu běhu (RUN).
+* **Ovládání:** Shodné s nastavením času (tlačítka UP/DOWN a LEFT/RIGHT).
+* **Uložení:** Opětovným stiskem BTNC. Budík se tímto uloží a aktivuje (armed).
+
+### 3. Režim Alarmu (ALARM_RING)
+* **Aktivace:** Nastane při shodě aktuálního času s časem budíku.
+* **Projevy:** * **Zvuk:** Piezo bzučák generuje varovný tón.
+    * **Vizuál:** Pravé čtyři segmenty displeje včetně dvojtečky blikají.
+* **Vypnutí:** Stiskem středového tlačítka BTNC. Po vypnutí pravá část displeje zhasne a budík čeká na nové nastavení.
+
+---
+
+## Technická architektura
+
+Projekt se skládá z několika propojených modulů, které zajišťují stabilitu a logiku systému:
+
+| Komponenta | Funkce |
+| :--- | :--- |
+| **Debounce moduly** | 5 jednotek pro eliminaci zákmitů mechanických tlačítek. |
+| **Clock Enablers** | Generátory 1Hz a 2Hz pulzů pro časovou logiku a blikání. |
+| **FSM Controller** | Konečný automat řídící stavy: RUN, SET_TIME, SET_ALARM, ALARM_RING. |
+| **BCD Counter** | Čítač pro uchovávání a inkrementaci aktuálního času. |
+| **Alarm Register** | Registr pro uložení nastaveného času budíku. |
+| **Comparator** | Neustálé porovnávání času a budíku pro vyvolání alarmu. |
+| **7-seg Display Driver** | Multiplexovaný ovladač pro zobrazení dat na 8 segmentech. |
+| **Tone Generator** | Modul pro generování signálu pro piezo bzučák. |
+
+---
+
 ## Alarm Clock Schematic
 
 [![Schematic Preview](alarm_clock_schematic.png)](alarm_clock_schematic.pdf)
@@ -19,11 +67,13 @@ Projekt využívá tyto hlavní komponenty: pětici debounce modulů pro stabili
 [CLK_EN Simulation](clk_en_simulation.png)<br>
 [COMP Simulation](comp_simulation.png)<br>
 [TIME_COUNTER Simulation](time_counter_simulation.png)<br>
-[PIEZO_DRV Simulation](piezo_drv_simulation.png)
+[PIEZO_DRV Simulation](piezo_drv_simulation.png)<br>
+[DEBOUNCE Simulation](debounce_simulation.png)<br>
 
 ## VHDL Code Files
 [CLK_EN VHDL file](clk_en.vhd)<br>
 [COMP VHDL file](comp.vhd)<br>
 [TIME_COUNTER VHDL file](time_counter.vhd)<br>
-[PIEZO_DRV VHDL file](piezo_drv.vhd)
+[PIEZO_DRV VHDL file](piezo_drv.vhd)<br>
+[DEBOUNCE VHDL file](debounce.vhd)<br>
 
