@@ -55,25 +55,22 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 
 ---
 
-## Alarm Clock Schematic
+##  Přílohy a soubory projektu
 
-[![Schematic Preview](alarm_clock_schematic.png)](alarm_clock_schematic.pdf)
+### Schéma a hardwarová omezení
+* **Schéma zapojení:** [![Schematic Preview](alarm_clock_schematic.png)](alarm_clock_schematic.pdf)
+* **Nexys A7-50T Constraints:** [alarm_clock_top.xdc](alarm_clock_top.xdc)
 
-## Nexys A7 50T constraints file
+### Grafy simulací
+* [Simulace CLK_EN](clk_en_simulation.png)
+* [Simulace COMP](comp_simulation.png)
+* [Simulace TIME_COUNTER](time_counter_simulation.png)
+* [Simulace PIEZO_DRV](piezo_drv_simulation.png)
+* [Simulace DEBOUNCE](debounce_simulation.png)
 
-[Open Constraints](alarm_clock_top.xdc)
-
-## Simulation pics
-[CLK_EN Simulation](clk_en_simulation.png)<br>
-[COMP Simulation](comp_simulation.png)<br>
-[TIME_COUNTER Simulation](time_counter_simulation.png)<br>
-[PIEZO_DRV Simulation](piezo_drv_simulation.png)<br>
-[DEBOUNCE Simulation](debounce_simulation.png)<br>
-
-## VHDL Code Files
-[CLK_EN VHDL file](clk_en.vhd)<br>
-[COMP VHDL file](comp.vhd)<br>
-[TIME_COUNTER VHDL file](time_counter.vhd)<br>
-[PIEZO_DRV VHDL file](piezo_drv.vhd)<br>
-[DEBOUNCE VHDL file](debounce.vhd)<br>
-
+### Zdrojové kódy (VHDL)
+* [clk_en.vhd](clk_en.vhd)
+* [comp.vhd](comp.vhd)
+* [time_counter.vhd](time_counter.vhd)
+* [piezo_drv.vhd](piezo_drv.vhd)
+* [debounce.vhd](debounce.vhd)
