@@ -1,7 +1,6 @@
 -------------------------------------------------
 --! @brief Clock enable generator
 --! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
 --!
 --! Generates a single-clock-cycle pulse every G_MAX
 --! cycles of the input clock. Used to derive slow
