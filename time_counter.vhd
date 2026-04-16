@@ -1,7 +1,6 @@
 -------------------------------------------------
 --! @brief 24-hour BCD time counter (HH:MM)
 --! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
 --!
 --! Stores hours and minutes as four BCD digits:
 --!   h1 (0-2), h0 (0-9), m1 (0-5), m0 (0-9)
