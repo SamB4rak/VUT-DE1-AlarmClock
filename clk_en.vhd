@@ -1,6 +1,7 @@
 -------------------------------------------------
 --! @brief Clock enable generator
 --! @version 1.0
+--! @copyright (c) 2026 Jarda, MIT license
 --!
 --! Generates a single-clock-cycle pulse every G_MAX
 --! cycles of the input clock. Used to derive slow
@@ -21,7 +22,7 @@ use ieee.numeric_std.all;
 
 entity clk_en is
     generic (
-        G_MAX : positive := 50_000_000
+        G_MAX : positive := 100_000_000
     );
     port (
         clk : in  std_logic;

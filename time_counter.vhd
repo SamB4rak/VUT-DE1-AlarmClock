@@ -1,6 +1,7 @@
 -------------------------------------------------
 --! @brief 24-hour BCD time counter (HH:MM)
 --! @version 1.0
+--! @copyright (c) 2026 Jarda, MIT license
 --!
 --! Stores hours and minutes as four BCD digits:
 --!   h1 (0-2), h0 (0-9), m1 (0-5), m0 (0-9)
@@ -45,6 +46,7 @@ architecture Behavioral of time_counter is
     signal h0 : unsigned(3 downto 0);
     signal m1 : unsigned(3 downto 0);
     signal m0 : unsigned(3 downto 0);
+    signal sec : unsigned(5 downto 0);  -- 0..59
 
     -- Maximum value for h0 depends on h1:
     -- h1 = 2 -> h0 max = 3 (for 23:59)
@@ -68,35 +70,42 @@ begin
                 h0 <= (others => '0');
                 m1 <= (others => '0');
                 m0 <= (others => '0');
+                sec <= (others => '0');
 
-            elsif run_en = '1' then
+           elsif run_en = '1' then
                 ------------------------------------------------
-                -- RUN mode: auto count every 1 Hz pulse
+                -- RUN mode: interní sekundový čítač
                 ------------------------------------------------
                 if ce_run = '1' then
-                    -- increment minutes ones
-                    if m0 = 9 then
-                        m0 <= (others => '0');
-                        -- increment minutes tens
-                        if m1 = 5 then
-                            m1 <= (others => '0');
-                            -- increment hours ones
-                            if h0 = h0_max(h1) then
-                                h0 <= (others => '0');
-                                -- increment hours tens
-                                if h1 = 2 then
-                                    h1 <= (others => '0');   -- 23:59 -> 00:00
+                    -- sekunda uplynula
+                    if sec = 59 then
+                        sec <= (others => '0');
+                        -- increment minutes ones
+                        if m0 = 9 then
+                            m0 <= (others => '0');
+                            -- increment minutes tens
+                            if m1 = 5 then
+                                m1 <= (others => '0');
+                                -- increment hours ones
+                                if h0 = h0_max(h1) then
+                                    h0 <= (others => '0');
+                                    -- increment hours tens
+                                    if h1 = 2 then
+                                        h1 <= (others => '0');   -- 23:59 -> 00:00
+                                    else
+                                        h1 <= h1 + 1;
+                                    end if;
                                 else
-                                    h1 <= h1 + 1;
+                                    h0 <= h0 + 1;
                                 end if;
                             else
-                                h0 <= h0 + 1;
+                                m1 <= m1 + 1;
                             end if;
                         else
-                            m1 <= m1 + 1;
+                            m0 <= m0 + 1;
                         end if;
                     else
-                        m0 <= m0 + 1;
+                        sec <= sec + 1;
                     end if;
                 end if;
 
@@ -104,6 +113,7 @@ begin
                 ------------------------------------------------
                 -- SET mode: manual inc/dec of selected digit
                 ------------------------------------------------
+                sec <= (others => '0');   -- vynuluj sekundy kdykoli jsme v SET módu
                 if inc_en = '1' then
                     case digit_sel is
                         when "00" =>  -- h1: 0..2
