@@ -60,7 +60,7 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 ### Schéma a hardwarová omezení
 * **Schéma zapojení:** [![Schematic Preview](alarm_clock_schematic.png)](alarm_clock_schematic.pdf)
 * **Nexys A7-50T Constraints:** [alarm_clock_top.xdc](alarm_clock_top.xdc)
-* **Project file:** [alarm_clock_v1.xdc](alarm_clock_v1.xpr)
+* **Project file:** [alarm_clock.xpr](alarm_clock_v1.xpr)
 
 ### Grafy simulací
 * [Simulace CLK_EN](clk_en_simulation.png)
@@ -70,8 +70,12 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 * [Simulace DEBOUNCE](debounce_simulation.png)
 
 ### Zdrojové kódy (VHDL)
-* [clk_en.vhd](clk_en.vhd)
-* [comp.vhd](comp.vhd)
-* [time_counter.vhd](time_counter.vhd)
-* [piezo_drv.vhd](piezo_drv.vhd)
-* [debounce.vhd](debounce.vhd)
+* [Top Module](alarm_clock_top.vhd)
+* [Alarm Register](alarm_reg.vhd)
+* [Display Mux](display_mux.vhd)
+* [FSM Control](fsm_ctrl.vhd)
+* [Clock Enable](clk_en.vhd)
+* [Comparator](comp.vhd)
+* [Time Counter](time_counter.vhd)
+* [Piezo Driver](piezo_drv.vhd)
+* [Debounce](debounce.vhd)
