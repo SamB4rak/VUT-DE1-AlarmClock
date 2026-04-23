@@ -77,7 +77,7 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 * [Simulace DEBOUNCE](debounce_simulation.png)
 * [Simulace ALARM_REG](alarm_reg_simulace.png)
 * [Simulace FSM_CTRL](fsm_ctrl_simulation.png)
-* [Simulace DISPLAY_MUX](display_mux_simulation.png)
+* [Simulace DISPLAY_MUX](display_mux_simulaton.png)
 
 ### Zdrojové kódy (VHDL)
 * [Top Module](alarm_clock_top.vhd)
