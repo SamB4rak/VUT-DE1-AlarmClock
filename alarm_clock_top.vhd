@@ -1,7 +1,7 @@
 -------------------------------------------------
 --! @brief Alarm clock top-level
 --! @version 1.0
---! @copyright (c)
+--! @copyright (c) 2026 Jarda, MIT license
 --!
 --! Connects all subcomponents:
 --!   - 5x debounce (one per push button)
@@ -73,8 +73,9 @@ architecture Behavioral of alarm_clock_top is
     signal ringing_w : std_logic;
 
     -- Time/alarm data
-    signal time_w  : std_logic_vector(15 downto 0);
-    signal alarm_w : std_logic_vector(15 downto 0);
+    signal time_w    : std_logic_vector(15 downto 0);
+    signal alarm_w   : std_logic_vector(15 downto 0);
+    signal sec_tick_w : std_logic;
 
     -- Match signal
     signal match_w : std_logic;
@@ -118,7 +119,7 @@ begin
     --------------------------------------------------------------
     u_ce_1hz : entity work.clk_en
         generic map (
-            G_MAX => 50_000_000    -- 1 Hz from 100 MHz
+            G_MAX => 100_000_000    -- 1 Hz from 100 MHz
         )
         port map (
             clk => clk,
@@ -131,7 +132,7 @@ begin
     --------------------------------------------------------------
     u_ce_blink : entity work.clk_en
         generic map (
-            G_MAX => 25_000_000    -- 2 Hz from 100 MHz
+            G_MAX => 50_000_000    -- 2 Hz from 100 MHz
         )
         port map (
             clk => clk,
@@ -172,7 +173,8 @@ begin
             inc_en    => time_inc,
             dec_en    => time_dec,
             digit_sel => digit_sel,
-            time_out  => time_w
+            time_out  => time_w,
+            sec_tick  => sec_tick_w
         );
 
     --------------------------------------------------------------
@@ -212,7 +214,7 @@ begin
             alarm_in    => alarm_w,
             state       => state_w,
             digit_sel   => digit_sel,
-            ce_1hz      => ce_1hz,
+            sec_tick    => sec_tick_w,
             ce_blink    => ce_blink,
             alarm_armed => armed_w,
             seg         => seg,

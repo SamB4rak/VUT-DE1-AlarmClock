@@ -1,7 +1,7 @@
 -------------------------------------------------
 --! @brief Button debouncer (parametrized)
 --! @version 2.0
---! @copyright (c) 2023-2026 Tomas Fryza
+--! @copyright (c) 2023-2026 Tomas Fryza, Jarda, MIT license
 --!
 --! Single-button debouncer using a sampling technique
 --! with a shift register. Generates a stable level

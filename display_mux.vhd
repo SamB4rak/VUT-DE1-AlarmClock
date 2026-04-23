@@ -1,27 +1,32 @@
 -------------------------------------------------
 --! @brief 8-digit 7-segment display multiplexer
---! @version 1.0
---! @copyright (c)
+--! @version 3.0
+--! @copyright (c) 2026 Jarda, MIT license
 --!
---! Drives the Nexys A7 8-digit 7-seg display.
---! Layout:
---!   an(0..3) = LEFT  4 digits  -> time HH:MM
---!   an(4..7) = RIGHT 4 digits  -> alarm HH:MM
+--! Nexys A7 anode numbering (active-low):
+--!   an[7] = leftmost digit ... an[0] = rightmost digit
 --!
---! Decimal point (colon emulation):
---!   an(1) DP = blinks at 1 Hz (toggle by ce_1hz) when in RUN mode
---!   an(5) DP = always on (alarm colon)
+--! Display layout:
+--!   an[7] an[6] an[5] an[4]  an[3] an[2] an[1] an[0]
+--!   h1    h0.   m1    m0     ah1   ah0.  am1   am0
+--!   |--- TIME (left) ----|   |--- ALARM (right) ----|
 --!
---! State-driven behavior (state encoding from fsm_ctrl):
---!   "00" RUN        : show time + alarm normally
---!   "01" SET_TIME   : blink the active digit on LEFT half
---!   "10" SET_ALARM  : blink the active digit on RIGHT half
---!   "11" ALARM_RING : blink entire RIGHT half + DP at 2 Hz
+--!   DP on an[6] = time colon (blinks every sec)
+--!   DP on an[2] = alarm colon (always on when armed)
 --!
---! When alarm_armed='0' (after user dismisses alarm),
---! the right half is fully blanked until re-armed.
+--! State encoding (from fsm_ctrl):
+--!   "00" RUN        : normal display, time colon blinks
+--!   "01" SET_TIME   : blink active digit on LEFT half
+--!   "10" SET_ALARM  : blink active digit on RIGHT half
+--!   "11" ALARM_RING : blink entire RIGHT half at 2 Hz
 --!
---! Multiplex frequency: ~1 kHz (set via clk_en or local divider)
+--! digit_sel mapping:
+--!   "00" = h1/ah1 (tens of hours)
+--!   "01" = h0/ah0 (ones of hours)
+--!   "10" = m1/am1 (tens of minutes)
+--!   "11" = m0/am0 (ones of minutes)
+--!
+--! When alarm_armed='0', right half is blanked.
 -------------------------------------------------
 
 library ieee;
@@ -30,24 +35,24 @@ use ieee.numeric_std.all;
 
 entity display_mux is
     generic (
-        G_MUX_MAX : positive := 100_000   -- ~1 kHz from 100 MHz
+        G_MUX_MAX : positive := 100_000
     );
     port (
         clk          : in  std_logic;
         rst          : in  std_logic;
 
-        -- Data
+        -- Data: {h1, h0, m1, m0}, 4 bits each
         time_in      : in  std_logic_vector(15 downto 0);
         alarm_in     : in  std_logic_vector(15 downto 0);
 
-        -- Control from FSM
-        state        : in  std_logic_vector(1 downto 0);  -- RUN/SETT/SETA/RING
-        digit_sel    : in  std_logic_vector(1 downto 0);  -- which digit is active in SET
-        ce_1hz       : in  std_logic;                     -- 1 Hz pulse for time colon
-        ce_blink     : in  std_logic;                     -- 2 Hz pulse for digit/alarm blink
-        alarm_armed  : in  std_logic;                     -- '1' = alarm is set
+        -- Control
+        state        : in  std_logic_vector(1 downto 0);
+        digit_sel    : in  std_logic_vector(1 downto 0);
+        sec_tick     : in  std_logic;      -- toggles every second
+        ce_blink     : in  std_logic;      -- 2 Hz pulse
+        alarm_armed  : in  std_logic;
 
-        -- Display outputs (active-low for Nexys A7)
+        -- Display outputs (active-low)
         seg          : out std_logic_vector(6 downto 0);
         an           : out std_logic_vector(7 downto 0);
         dp           : out std_logic
@@ -56,32 +61,24 @@ end entity display_mux;
 
 architecture Behavioral of display_mux is
 
-    -- State encoding (must match fsm_ctrl)
     constant ST_RUN  : std_logic_vector(1 downto 0) := "00";
     constant ST_SETT : std_logic_vector(1 downto 0) := "01";
     constant ST_SETA : std_logic_vector(1 downto 0) := "10";
     constant ST_RING : std_logic_vector(1 downto 0) := "11";
 
-    -- Mux scan counter
     signal mux_cnt   : unsigned(31 downto 0);
-    signal scan_idx  : unsigned(2 downto 0);  -- 0..7 active digit
+    signal scan_idx  : unsigned(2 downto 0);  -- 0..7
+    signal blink_tog : std_logic;
 
-    -- Blink toggles (visible state)
-    signal colon_tog : std_logic;             -- toggles at 1 Hz, controls time DP
-    signal blink_tog : std_logic;             -- toggles at 2 Hz, controls active digit & ring
-
-    -- Currently selected BCD nibble
-    signal cur_bcd   : std_logic_vector(3 downto 0);
-    signal cur_seg   : std_logic_vector(6 downto 0);
-
-    -- Per-digit blank decisions
+    signal cur_bcd     : std_logic_vector(3 downto 0);
+    signal cur_seg     : std_logic_vector(6 downto 0);
     signal blank_digit : std_logic;
-    signal cur_dp      : std_logic;  -- active-high internal, inverted at output
+    signal cur_dp      : std_logic;
 
 begin
 
     ----------------------------------------------------------------
-    -- Mux scan counter (~1 kHz)
+    -- Scan counter
     ----------------------------------------------------------------
     p_scan : process(clk)
     begin
@@ -101,97 +98,90 @@ begin
     end process;
 
     ----------------------------------------------------------------
-    -- Blink toggles: derived from ce_1hz and ce_blink pulses
+    -- Blink toggle (2 Hz)
     ----------------------------------------------------------------
-   p_blink : process(clk)
+    p_blink : process(clk)
     begin
         if rising_edge(clk) then
             if rst = '1' then
-                colon_tog <= '0';
                 blink_tog <= '0';
-            else
-                if ce_1hz = '1' then
-                    colon_tog <= not colon_tog;
-                end if;
-                if ce_blink = '1' then
-                    blink_tog <= not blink_tog;
-                end if;
+            elsif ce_blink = '1' then
+                blink_tog <= not blink_tog;
             end if;
         end if;
     end process;
 
-    -- sec_pulse: pro debug - colon_tog by se měl překlápět každou sekundu
-    -- Pokud nebliká, zkontroluj XDC: create_clock -period 10.000 [get_ports clk]
-
     ----------------------------------------------------------------
-    -- Select BCD nibble for current scan position
-    -- Mapping of scan_idx -> source nibble:
-    --   0 -> time h1   (an[0])
-    --   1 -> time h0   (an[1])  + DP for time colon
-    --   2 -> time m1   (an[2])
-    --   3 -> time m0   (an[3])
-    --   4 -> alarm h1  (an[4])
-    --   5 -> alarm h0  (an[5])  + DP for alarm colon
-    --   6 -> alarm m1  (an[6])
-    --   7 -> alarm m0  (an[7])
+    -- BCD nibble selection + blanking + DP logic
+    --
+    -- Physical anode mapping on Nexys A7:
+    --   scan_idx  anode   content     role
+    --   7         an[7]   time h1     LEFT (time) - tens of hours
+    --   6         an[6]   time h0     LEFT (time) - ones of hours + DP colon
+    --   5         an[5]   time m1     LEFT (time) - tens of minutes
+    --   4         an[4]   time m0     LEFT (time) - ones of minutes
+    --   3         an[3]   alarm h1    RIGHT (alarm) - tens of hours
+    --   2         an[2]   alarm h0    RIGHT (alarm) - ones of hours + DP colon
+    --   1         an[1]   alarm m1    RIGHT (alarm) - tens of minutes
+    --   0         an[0]   alarm m0    RIGHT (alarm) - ones of minutes
+    --
+    -- digit_sel for SET modes:
+    --   "00" = h1 -> scan 7 (time) or 3 (alarm)
+    --   "01" = h0 -> scan 6 (time) or 2 (alarm)
+    --   "10" = m1 -> scan 5 (time) or 1 (alarm)
+    --   "11" = m0 -> scan 4 (time) or 0 (alarm)
     ----------------------------------------------------------------
     p_select : process(scan_idx, time_in, alarm_in,
-                       state, digit_sel, blink_tog, colon_tog,
+                       state, digit_sel, blink_tog, sec_tick,
                        alarm_armed)
         variable v_idx       : integer range 0 to 7;
         variable v_blank     : std_logic;
         variable v_dp        : std_logic;
-        variable v_active_dg : std_logic_vector(1 downto 0);
         variable v_left_half : boolean;
+        variable v_digit_pos : std_logic_vector(1 downto 0);  -- which digit within its half
     begin
-        -- Defaults (used also when scan_idx is metavalue at sim start)
         v_idx       := 0;
         v_blank     := '0';
         v_dp        := '0';
         v_left_half := true;
         cur_bcd     <= (others => '0');
 
-        -- Decode scan_idx safely
+        -- Select BCD nibble based on scan_idx
+        -- time_in  = {h1[15:12], h0[11:8], m1[7:4], m0[3:0]}
+        -- alarm_in = {ah1[15:12], ah0[11:8], am1[7:4], am0[3:0]}
         case scan_idx is
-            when "000" => v_idx := 0; cur_bcd <= time_in(15 downto 12);
-            when "001" => v_idx := 1; cur_bcd <= time_in(11 downto 8);
-            when "010" => v_idx := 2; cur_bcd <= time_in(7 downto 4);
-            when "011" => v_idx := 3; cur_bcd <= time_in(3 downto 0);
-            when "100" => v_idx := 4; cur_bcd <= alarm_in(15 downto 12);
-            when "101" => v_idx := 5; cur_bcd <= alarm_in(11 downto 8);
-            when "110" => v_idx := 6; cur_bcd <= alarm_in(7 downto 4);
-            when "111" => v_idx := 7; cur_bcd <= alarm_in(3 downto 0);
+            when "111" => v_idx := 7; cur_bcd <= time_in(15 downto 12);   -- an[7] = time h1
+            when "110" => v_idx := 6; cur_bcd <= time_in(11 downto 8);    -- an[6] = time h0
+            when "101" => v_idx := 5; cur_bcd <= time_in(7 downto 4);     -- an[5] = time m1
+            when "100" => v_idx := 4; cur_bcd <= time_in(3 downto 0);     -- an[4] = time m0
+            when "011" => v_idx := 3; cur_bcd <= alarm_in(15 downto 12);  -- an[3] = alarm h1
+            when "010" => v_idx := 2; cur_bcd <= alarm_in(11 downto 8);   -- an[2] = alarm h0
+            when "001" => v_idx := 1; cur_bcd <= alarm_in(7 downto 4);    -- an[1] = alarm m1
+            when "000" => v_idx := 0; cur_bcd <= alarm_in(3 downto 0);    -- an[0] = alarm m0
             when others => v_idx := 0; cur_bcd <= (others => '0');
         end case;
 
-        v_left_half := (v_idx <= 3);
+        v_left_half := (v_idx >= 4);  -- an[4..7] = LEFT = time
 
         ----------------------------------------------------------
-        -- Decimal point logic
+        -- DP logic (DP is active on the h0 position = between H and M)
         ----------------------------------------------------------
-        -- Time colon at an[1] (h0 of time): blinks at 1 Hz in RUN/SET states
-        if v_idx = 1 then
-            if state = ST_RUN or state = ST_SETT then
-                v_dp := colon_tog;          -- blink with 1 Hz toggle
-            else
-                v_dp := '1';                -- always on otherwise
-            end if;
+        -- Time colon: DP on an[6] (time h0), blinks with sec_tick
+        if v_idx = 6 then
+            v_dp := sec_tick;
         end if;
 
-        -- Alarm colon at an[5] (h0 of alarm): always on when alarm_armed
-        if v_idx = 5 then
+        -- Alarm colon: DP on an[2] (alarm h0), always on when armed or setting
+        if v_idx = 2 then
             if alarm_armed = '1' or state = ST_SETA then
                 v_dp := '1';
-            else
-                v_dp := '0';
             end if;
         end if;
 
         ----------------------------------------------------------
         -- Blanking logic
         ----------------------------------------------------------
-        -- Right half: if alarm not armed AND not currently being set,
-        -- blank entire right half
+        -- RIGHT half (alarm): blank when not armed and not setting alarm
         if not v_left_half then
             if alarm_armed = '0' and state /= ST_SETA then
                 v_blank := '1';
@@ -199,7 +189,7 @@ begin
             end if;
         end if;
 
-        -- ALARM_RING: blink right half + DP at 2 Hz
+        -- ALARM_RING: blink entire RIGHT half + DP at 2 Hz
         if state = ST_RING and not v_left_half then
             if blink_tog = '0' then
                 v_blank := '1';
@@ -207,18 +197,20 @@ begin
             end if;
         end if;
 
-        -- SET_TIME: blink the currently selected digit on LEFT half
+        -- SET_TIME: blink the active digit on LEFT half
+        -- digit_sel "00"=h1 maps to scan 7, "01"=h0 to 6, "10"=m1 to 5, "11"=m0 to 4
         if state = ST_SETT and v_left_half then
-            v_active_dg := std_logic_vector(to_unsigned(v_idx, 2));
-            if digit_sel = v_active_dg and blink_tog = '0' then
+            v_digit_pos := std_logic_vector(to_unsigned(7 - v_idx, 2));
+            if digit_sel = v_digit_pos and blink_tog = '0' then
                 v_blank := '1';
             end if;
         end if;
 
-        -- SET_ALARM: blink the currently selected digit on RIGHT half
+        -- SET_ALARM: blink the active digit on RIGHT half
+        -- digit_sel "00"=ah1 maps to scan 3, "01"=ah0 to 2, "10"=am1 to 1, "11"=am0 to 0
         if state = ST_SETA and not v_left_half then
-            v_active_dg := std_logic_vector(to_unsigned(v_idx - 4, 2));
-            if digit_sel = v_active_dg and blink_tog = '0' then
+            v_digit_pos := std_logic_vector(to_unsigned(3 - v_idx, 2));
+            if digit_sel = v_digit_pos and blink_tog = '0' then
                 v_blank := '1';
             end if;
         end if;
@@ -229,7 +221,7 @@ begin
 
     ----------------------------------------------------------------
     -- BCD -> 7-seg decoder (active-low cathodes)
-    -- seg(6)=A, seg(5)=B, seg(4)=C, seg(3)=D, seg(2)=E, seg(1)=F, seg(0)=G
+    -- seg(6)=CA ... seg(0)=CG
     ----------------------------------------------------------------
     p_decode : process(cur_bcd)
     begin
@@ -249,32 +241,31 @@ begin
     end process;
 
     ----------------------------------------------------------------
-    -- Anode + segment outputs (active-low for Nexys A7)
+    -- Anode + segment drive (active-low)
     ----------------------------------------------------------------
     p_drive : process(scan_idx, cur_seg, blank_digit, cur_dp)
         variable v_an : std_logic_vector(7 downto 0);
     begin
-        v_an := (others => '1');           -- all digits off (active-low)
-        -- Only drive active anode if scan_idx is a valid value
+        v_an := (others => '1');           -- all off
         case scan_idx is
-            when "000"  => v_an(7) := '0';
-            when "001"  => v_an(6) := '0';
-            when "010"  => v_an(5) := '0';
-            when "011"  => v_an(4) := '0';
-            when "100"  => v_an(3) := '0';
-            when "101"  => v_an(2) := '0';
-            when "110"  => v_an(1) := '0';
-            when "111"  => v_an(0) := '0';
-            when others => null;            -- 'U'/'X' -> all anodes stay '1'
+            when "000"  => v_an(0) := '0';
+            when "001"  => v_an(1) := '0';
+            when "010"  => v_an(2) := '0';
+            when "011"  => v_an(3) := '0';
+            when "100"  => v_an(4) := '0';
+            when "101"  => v_an(5) := '0';
+            when "110"  => v_an(6) := '0';
+            when "111"  => v_an(7) := '0';
+            when others => null;
         end case;
         an <= v_an;
 
         if blank_digit = '1' then
-            seg <= (others => '1');        -- all segments off
-            dp  <= '1';                    -- DP off
+            seg <= (others => '1');
+            dp  <= '1';
         else
             seg <= cur_seg;
-            dp  <= not cur_dp;             -- invert to active-low
+            dp  <= not cur_dp;    -- invert: internal '1' -> output '0' (DP on)
         end if;
     end process;
 
