@@ -58,7 +58,7 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 ##  Přílohy a soubory projektu
 
 ### Schéma a hardwarová omezení
-* **Schéma zapojení:** [![Schematic Preview](alarm_clock_schematic.png)](alarm_clock_schematic.pdf)
+* **Schéma zapojení:** [![Schematic Preview](alarm_clock_schematic_page-0001.jpg)](alarm_clock_schematic.pdf)
 * **Nexys A7-50T Constraints:** [alarm_clock_top.xdc](alarm_clock_top.xdc)
 * **Project file:** [alarm_clock.xpr](alarm_clock_v1.xpr)
 
