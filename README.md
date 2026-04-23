@@ -4,6 +4,11 @@ Tento projekt implementuje digitální 24hodinový budík v jazyce **VHDL** pro 
 
 **Autoři:** Barák, Glaser, Kapaňa
 
+**Rozdělení úloh:**
+- Návrh a vymyšlení funkcí a návrhu: Barák, Glaser, Kapaňa
+- Kódování a debugging: Kapaňa, Glaser
+- Plagát, video, GitHub: Barák
+
 ---
 
 ## Popis projektu
