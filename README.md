@@ -67,6 +67,8 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 * **Nexys A7-50T Constraints:** [alarm_clock_top.xdc](alarm_clock_top.xdc)
 * **Project file:** [alarm_clock.xpr](alarm_clock_v1.xpr)
 
+### Video běhu programu
+
 ### Grafy simulací
 * [Simulace CLK_EN](clk_en_simulation.png)
 * [Simulace COMP](comp_simulation.png)
