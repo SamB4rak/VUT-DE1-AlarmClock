@@ -10,8 +10,8 @@ Tento projekt implementuje digitální 24hodinový budík v jazyce **VHDL** pro 
 Cílem projektu je vytvořit plně funkční digitální hodiny s budíkem. 
 
 ### Zobrazení na displeji:
-* **Levé 4 segmenty (HH:MM):** Aktuální běžící čas. Dvojtečka bliká s frekvencí **1 Hz** (1 Hz je 1 sec).
-* **Pravé 4 segmenty (HH:MM):** Nastavený čas budíku. Dvojtečka svítí trvale (v režimu aktivního budíku).
+* **Levé 4 segmenty (HH:MM):** Aktuální běžící čas. Desetinná tečka bliká s frekvencí **1 Hz** (1 Hz je 1 sec).
+* **Pravé 4 segmenty (HH:MM):** Nastavený čas budíku. Desetinná tečka svítí trvale (v režimu aktivního budíku).
 
 ---
 
