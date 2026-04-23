@@ -1,7 +1,7 @@
 -------------------------------------------------
 --! @brief Alarm clock main FSM controller
 --! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @copyright (c)
 --!
 --! Manages four states:
 --!   RUN        : time counts, alarm compared, display normal
