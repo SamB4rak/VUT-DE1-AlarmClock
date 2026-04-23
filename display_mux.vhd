@@ -1,7 +1,7 @@
 -------------------------------------------------
 --! @brief 8-digit 7-segment display multiplexer
 --! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @copyright (c)
 --!
 --! Drives the Nexys A7 8-digit 7-seg display.
 --! Layout:
