@@ -1,7 +1,7 @@
 -------------------------------------------------
 --! @brief Equality comparator for time vs alarm
 --! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @copyright (c)
 --!
 --! Purely combinational. Outputs match='1' when the
 --! current time equals the alarm time.
