@@ -1,7 +1,7 @@
 -------------------------------------------------
 --! @brief 24-hour BCD alarm register (HH:MM)
 --! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @copyright (c)
 --!
 --! Stores the alarm time as four BCD digits:
 --!   h1 (0-2), h0 (0-9 / 0-3), m1 (0-5), m0 (0-9)
