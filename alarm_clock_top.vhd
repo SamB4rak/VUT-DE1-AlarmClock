@@ -1,7 +1,7 @@
 -------------------------------------------------
 --! @brief Alarm clock top-level
 --! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @copyright (c)
 --!
 --! Connects all subcomponents:
 --!   - 5x debounce (one per push button)
