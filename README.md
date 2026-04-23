@@ -68,6 +68,9 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 * [Simulace TIME_COUNTER](time_counter_simulation.png)
 * [Simulace PIEZO_DRV](piezo_drv_simulation.png)
 * [Simulace DEBOUNCE](debounce_simulation.png)
+* [Simulace ALARM_REG](alarm_reg_simulation.png)
+* [Simulace FSM_CTRL](fsm_ctrl_simulation.png)
+* [Simulace DISPLAY_MUX](display_mux_simulation.png)
 
 ### Zdrojové kódy (VHDL)
 * [Top Module](alarm_clock_top.vhd)
