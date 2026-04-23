@@ -1,7 +1,7 @@
 -------------------------------------------------
 --! @brief Piezo buzzer square-wave driver
 --! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @copyright (c)
 --!
 --! Generates a ~1 kHz square wave on the piezo
 --! output while ringing='1'. When ringing='0',
