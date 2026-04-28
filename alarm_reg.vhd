@@ -1,21 +1,25 @@
 -------------------------------------------------
---! @brief 24-hour BCD alarm register (HH:MM)
---! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @file alarm_reg.vhd
+--! @brief Editable 24-hour alarm-time register in packed BCD format.
+--! @description
+--! Stores the alarm setting as four BCD digits in HH:MM format and updates
+--! only when the control FSM issues manual increment or decrement pulses.
+--! The register does not count automatically; it only holds the selected
+--! alarm time until edited again or reset.
 --!
---! Stores the alarm time as four BCD digits:
---!   h1 (0-2), h0 (0-9 / 0-3), m1 (0-5), m0 (0-9)
---! No automatic counting - values only change via
---! manual inc/dec pulses from the FSM when in SET_ALARM
---! state, with the same BCD range rules as time_counter.
---
--- Notes:
--- - Synchronous design (rising edge of clk)
--- - High-active synchronous reset -> 00:00
--- - inc_en/dec_en pulses trigger a one-step change
---   to the digit selected by digit_sel(1:0):
---     "00" = h1, "01" = h0, "10" = m1, "11" = m0
--- - alarm_out = h1 & h0 & m1 & m0 (4 bits each, MSB first)
+--! Main behavior:
+--! - rst='1' resets the alarm to 00:00.
+--! - inc_en and dec_en change one selected digit per clock pulse.
+--! - digit_sel selects h1, h0, m1, or m0 using "00", "01", "10", "11".
+--! - Hour digits are constrained to the valid 00..23 range.
+--! - Minute digits are constrained to the valid 00..59 range.
+--! - alarm_out packs the digits as h1 & h0 & m1 & m0.
+--!
+--! Relevant notes:
+--! - The design is fully synchronous to clk.
+--! - h0_max() limits the hour-ones digit to 3 when h1 is 2.
+--!
+--! @copyright Kapana, Glaser 2026
 -------------------------------------------------
 
 library ieee;

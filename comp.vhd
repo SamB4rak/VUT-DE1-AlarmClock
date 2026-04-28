@@ -1,10 +1,20 @@
 -------------------------------------------------
---! @brief Equality comparator for time vs alarm
---! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @file comp.vhd
+--! @brief Combinational equality comparator for current time and alarm time.
+--! @description
+--! Compares two packed BCD HH:MM values and asserts match when the current
+--! time is identical to the stored alarm time. The output is intended for
+--! the alarm-control FSM, where it is combined with the alarm_armed flag.
 --!
---! Purely combinational. Outputs match='1' when the
---! current time equals the alarm time.
+--! Main behavior:
+--! - time_in and alarm_in are 16-bit packed BCD values: h1 & h0 & m1 & m0.
+--! - match='1' when every BCD digit is equal.
+--! - match='0' for all non-equal values.
+--!
+--! Relevant notes:
+--! - This module is purely combinational and has no clock or reset.
+--!
+--! @copyright Kapana, Glaser 2026
 -------------------------------------------------
 
 library ieee;
