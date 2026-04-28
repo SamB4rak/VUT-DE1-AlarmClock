@@ -91,4 +91,5 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 * [Debounce](debounce.vhd)
 
 ### Zdroje
-
+* Claude AI, ChatGPT, Gemini (na výpomoc)
+* Zdrojové kódy na https://github.com/tomas-fryza/vhdl-examples
