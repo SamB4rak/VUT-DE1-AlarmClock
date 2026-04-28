@@ -89,3 +89,6 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 * [Time Counter](time_counter.vhd)
 * [Piezo Driver](piezo_drv.vhd)
 * [Debounce](debounce.vhd)
+
+### Zdroje
+
