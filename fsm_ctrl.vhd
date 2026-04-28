@@ -1,28 +1,31 @@
 -------------------------------------------------
---! @brief Alarm clock main FSM controller
---! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @file fsm_ctrl.vhd
+--! @brief Main finite-state controller for the alarm clock.
+--! @description
+--! Implements the operating logic for the alarm clock. It interprets
+--! debounced button-press pulses, watches the mode switch and comparator
+--! match signal, selects the digit being edited, enables time counting,
+--! arms or disarms the alarm, and commands the display and buzzer states.
 --!
---! Manages four states:
---!   RUN        : time counts, alarm compared, display normal
---!   SET_TIME   : SW(0)=1, edit time digits with U/D/L/R/C buttons
---!   SET_ALARM  : entered by btnc from RUN, edit alarm digits
---!   ALARM_RING : reached when match=1 and alarm_armed=1
+--! States:
+--! - RUN: current time advances and the armed alarm is monitored.
+--! - SET_TIME: sw_mode='1'; selected time digit can be edited.
+--! - SET_ALARM: entered from RUN with btnc; selected alarm digit can be edited.
+--! - ALARM_RING: entered when match='1' while the alarm is armed.
 --!
---! Inputs (button pulses, single-clock):
---!   btn_press(4) = btnc
---!   btn_press(3) = btnr
---!   btn_press(2) = btnl
---!   btn_press(1) = btnd
---!   btn_press(0) = btnu
+--! Button mapping:
+--! - btn_press(0) = btnu: increment selected digit.
+--! - btn_press(1) = btnd: decrement selected digit.
+--! - btn_press(2) = btnl: move selection left with wraparound.
+--! - btn_press(3) = btnr: move selection right with wraparound.
+--! - btn_press(4) = btnc: enter/confirm alarm setting or dismiss ringing.
 --!
---! Outputs:
---!   time_inc/dec, alarm_inc/dec     -- pulses to BCD counters
---!   time_run                        -- '1' in RUN state -> auto count
---!   digit_sel(1:0)                  -- which digit is being edited
---!   state_out(1:0)                  -- current state (for display_mux)
---!   alarm_ringing                   -- '1' in ALARM_RING state
---!   alarm_armed                     -- '1' if alarm is set and active
+--! Relevant notes:
+--! - State encoding must match display_mux.
+--! - time_run remains high in RUN, SET_ALARM, and ALARM_RING.
+--! - Confirming SET_ALARM arms the alarm; dismissing ALARM_RING disarms it.
+--!
+--! @copyright Kapana, Glaser 2026
 -------------------------------------------------
 
 library ieee;

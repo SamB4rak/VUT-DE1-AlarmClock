@@ -1,16 +1,22 @@
 -------------------------------------------------
---! @brief Piezo buzzer square-wave driver
---! @version 1.0
---! @copyright (c) 2026 Jarda, MIT license
+--! @file piezo_drv.vhd
+--! @brief Square-wave driver for a piezo buzzer.
+--! @description
+--! Generates an audible square wave while the alarm is ringing. When the
+--! ringing input is low, the internal counter is cleared and the piezo
+--! output is forced low so the buzzer remains silent.
 --!
---! Generates a ~1 kHz square wave on the piezo
---! output while ringing='1'. When ringing='0',
---! the output is held at '0' (silent).
---
--- Notes:
--- - 100 MHz clk / (2 * G_HALF_PERIOD) = tone frequency
--- - G_HALF_PERIOD = 50_000 -> ~1 kHz
--- - For simulation set G_HALF_PERIOD small (e.g. 10)
+--! Main behavior:
+--! - ringing='1' enables tone generation.
+--! - ringing='0' disables the tone and clears the phase/counter.
+--! - The output toggles every G_HALF_PERIOD clock cycles.
+--!
+--! Relevant notes:
+--! - Tone frequency is clk_frequency / (2 * G_HALF_PERIOD).
+--! - G_HALF_PERIOD = 50_000 gives about 1 kHz from a 100 MHz clock.
+--! - Use a smaller G_HALF_PERIOD for faster simulation.
+--!
+--! @copyright Kapana, Glaser 2026
 -------------------------------------------------
 
 library ieee;
