@@ -69,7 +69,7 @@ Projekt se skládá z několika propojených modulů, které zajišťují stabil
 * **Resources:** <br> [![Resources Preview](Recources.png)](Recources.png)
 
 ### Video běhu programu
-https://github.com/SamB4rak/VUT-DE1-AlarmClock/blob/fff011d307b81be9f08f1e901d90648fd03e7934/Alarmclockvid.mp4
+* [Link na Video](https://github.com/SamB4rak/VUT-DE1-AlarmClock/blob/fff011d307b81be9f08f1e901d90648fd03e7934/Alarmclockvid.mp4)
 
 ### Grafy simulací
 * [Simulace CLK_EN](clk_en_simulation.png)
