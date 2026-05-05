@@ -1,24 +1,15 @@
 -------------------------------------------------
---! @file debounce.vhd
---! @brief Single-button synchronizer, debouncer, and press-pulse generator.
---! @description
---! Filters a mechanical push-button input before it is used by the control
---! FSM. The raw input is first synchronized to clk, then sampled at a slower
---! rate and passed through a short shift-register filter. The module outputs
---! both the debounced button level and a one-clock pulse on each new press.
+--! @brief Button debouncer (parametrized)
+--! @version 2.0
+--! @copyright (c) 2023-2026 Tomas Fryza, Jarda, MIT license
 --!
---! Main behavior:
---! - btn_in is the raw, potentially bouncing button input.
---! - btn_state is the stable debounced level.
---! - btn_press is high for one clock cycle on a rising button press.
---! - G_SAMPLE_MAX sets the sampling interval through the clk_en component.
+--! Single-button debouncer using a sampling technique
+--! with a shift register. Generates a stable level
+--! output and a one-clock pulse on press.
 --!
---! Relevant notes:
---! - G_SAMPLE_MAX = 200_000 is about 2 ms at 100 MHz.
---! - A small G_SAMPLE_MAX, for example 2, is useful in simulation.
---! - C_SHIFT_LEN = 4 requires four consistent sampled values before change.
---!
---! @copyright Kapana, Glaser 2026
+--! Generic G_SAMPLE_MAX:
+--!   2          -> for simulation (very fast)
+--!   200_000    -> for 100 MHz implementation (~2 ms)
 -------------------------------------------------
 
 library ieee;

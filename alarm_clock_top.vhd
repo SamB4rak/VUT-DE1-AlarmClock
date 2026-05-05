@@ -1,27 +1,20 @@
 -------------------------------------------------
---! @file alarm_clock_top.vhd
---! @brief Top-level module for the FPGA alarm clock.
---! @description
---! Connects the full alarm-clock system for a Nexys A7-style board using
---! a 100 MHz system clock. The module debounces five push buttons,
---! generates slow clock-enable pulses, controls operating modes, counts
---! the current time, stores the alarm time, compares time against alarm,
---! drives the 8-digit 7-segment display, and enables the piezo buzzer.
+--! @brief Alarm clock top-level
+--! @version 1.0
+--! @copyright (c) 2026 Jarda, MIT license
 --!
---! Main connections:
---! - btnu/btnd: increment and decrement the selected digit.
---! - btnl/btnr: move the selected digit in set modes.
---! - btnc: enter/confirm alarm setting or dismiss ringing alarm.
---! - sw(0): enter SET_TIME mode when high.
---! - seg/an/dp: active-low 7-segment display interface.
---! - piezo: square-wave buzzer output while the alarm is ringing.
+--! Connects all subcomponents:
+--!   - 5x debounce (one per push button)
+--!   - 2x clk_en (1 Hz, 2 Hz)
+--!   - fsm_ctrl
+--!   - time_counter
+--!   - alarm_reg
+--!   - comp
+--!   - display_mux
+--!   - piezo_drv
 --!
---! Relevant notes:
---! - Reset is synchronous and active high.
---! - Button order must match fsm_ctrl btn_press aliases.
---! - Pin placement is expected to be handled in the external XDC file.
---!
---! @copyright Kapana, Glaser 2026
+--! Targets Nexys A7-50T (100 MHz clk).
+--! Pin assignment is in alarm_clock_top.xdc.
 -------------------------------------------------
 
 library ieee;
@@ -80,8 +73,9 @@ architecture Behavioral of alarm_clock_top is
     signal ringing_w : std_logic;
 
     -- Time/alarm data
-    signal time_w  : std_logic_vector(15 downto 0);
-    signal alarm_w : std_logic_vector(15 downto 0);
+    signal time_w    : std_logic_vector(15 downto 0);
+    signal alarm_w   : std_logic_vector(15 downto 0);
+    signal sec_tick_w : std_logic;
 
     -- Match signal
     signal match_w : std_logic;
@@ -125,7 +119,7 @@ begin
     --------------------------------------------------------------
     u_ce_1hz : entity work.clk_en
         generic map (
-            G_MAX => 50_000_000    -- 1 Hz from 100 MHz
+            G_MAX => 100_000_000    -- 1 Hz from 100 MHz
         )
         port map (
             clk => clk,
@@ -138,7 +132,7 @@ begin
     --------------------------------------------------------------
     u_ce_blink : entity work.clk_en
         generic map (
-            G_MAX => 25_000_000    -- 2 Hz from 100 MHz
+            G_MAX => 50_000_000    -- 2 Hz from 100 MHz
         )
         port map (
             clk => clk,
@@ -179,7 +173,8 @@ begin
             inc_en    => time_inc,
             dec_en    => time_dec,
             digit_sel => digit_sel,
-            time_out  => time_w
+            time_out  => time_w,
+            sec_tick  => sec_tick_w
         );
 
     --------------------------------------------------------------
@@ -219,7 +214,7 @@ begin
             alarm_in    => alarm_w,
             state       => state_w,
             digit_sel   => digit_sel,
-            ce_1hz      => ce_1hz,
+            sec_tick    => sec_tick_w,
             ce_blink    => ce_blink,
             alarm_armed => armed_w,
             seg         => seg,

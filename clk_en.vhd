@@ -1,22 +1,19 @@
 -------------------------------------------------
---! @file clk_en.vhd
---! @brief Parameterized clock-enable pulse generator.
---! @description
---! Produces a one-clock-cycle enable pulse after G_MAX input clock cycles.
---! This allows slower timing events to be derived from the main system
---! clock without gating or creating a second clock domain.
+--! @brief Clock enable generator
+--! @version 1.0
+--! @copyright (c) 2026 Jarda, MIT license
 --!
---! Main behavior:
---! - ce is asserted for exactly one rising-edge clock cycle.
---! - The counter restarts at zero after reaching G_MAX - 1.
---! - rst='1' synchronously clears the counter and deasserts ce.
---!
---! Typical 100 MHz settings:
---! - G_MAX = 50_000_000 gives a 1 Hz enable.
---! - G_MAX = 25_000_000 gives a 2 Hz enable.
---! - G_MAX = 100_000 gives an approximately 1 kHz enable.
---!
---! @copyright Kapana, Glaser 2026
+--! Generates a single-clock-cycle pulse every G_MAX
+--! cycles of the input clock. Used to derive slow
+--! enables (1 Hz, 2 Hz, ~1 kHz) from the 100 MHz
+--! system clock without gating the actual clock.
+--
+-- Notes:
+-- - Synchronous design (rising edge of clk)
+-- - High-active synchronous reset
+-- - G_MAX = 50_000_000 -> 1 Hz from 100 MHz clock
+-- - G_MAX = 25_000_000 -> 2 Hz from 100 MHz clock
+-- - G_MAX = 100_000    -> 1 kHz from 100 MHz clock
 -------------------------------------------------
 
 library ieee;

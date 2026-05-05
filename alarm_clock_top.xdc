@@ -7,18 +7,16 @@
 ## Clock signal (100 MHz)
 ## -----------------------------------------------
 set_property -dict { PACKAGE_PIN E3 IOSTANDARD LVCMOS33 } [get_ports {clk}];
-create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports {clk}];
+create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} [get_ports clk]
 
 ## -----------------------------------------------
-## Reset - BTNCPUReset (active-high on Nexys A7)
-## Use the dedicated CPU_RESETN button? No, we map rst to any push button.
-## Here rst is mapped to switch SW[15] for convenience (toggle reset).
+## Reset - mapped to SW(15) for convenience
+## SW(15) UP = reset active, DOWN = normal run
 ## -----------------------------------------------
 set_property -dict { PACKAGE_PIN V10 IOSTANDARD LVCMOS33 } [get_ports {rst}];
 
 ## -----------------------------------------------
 ## Push buttons (5-directional pad)
-## btnu = up, btnd = down, btnl = left, btnr = right, btnc = center
 ## -----------------------------------------------
 set_property -dict { PACKAGE_PIN M18 IOSTANDARD LVCMOS33 } [get_ports {btnu}];
 set_property -dict { PACKAGE_PIN P18 IOSTANDARD LVCMOS33 } [get_ports {btnd}];
@@ -28,8 +26,6 @@ set_property -dict { PACKAGE_PIN N17 IOSTANDARD LVCMOS33 } [get_ports {btnc}];
 
 ## -----------------------------------------------
 ## Mode switch SW(0)
-## SW(0) = 0 -> RUN / SET_ALARM mode
-## SW(0) = 1 -> SET_TIME mode
 ## -----------------------------------------------
 set_property -dict { PACKAGE_PIN J15 IOSTANDARD LVCMOS33 } [get_ports {sw[0]}];
 
@@ -46,8 +42,9 @@ set_property -dict { PACKAGE_PIN T11 IOSTANDARD LVCMOS33 } [get_ports {seg[1]}];
 set_property -dict { PACKAGE_PIN L18 IOSTANDARD LVCMOS33 } [get_ports {seg[0]}];
 
 ## -----------------------------------------------
-## Seven-segment display - decimal point (active-low)
-## Used for colon indication (1 Hz blink on time, always-on on alarm)
+## Seven-segment display - decimal point DP (active-low)
+## Used as the blinking colon indicator
+## Pin H15 is the correct DP pin for Nexys A7-50T
 ## -----------------------------------------------
 set_property -dict { PACKAGE_PIN H15 IOSTANDARD LVCMOS33 } [get_ports {dp}];
 
